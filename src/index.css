@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+
+body {
+  font-family: "Space Grotesk", sans-serif;
+  background-color: black;
+  background-image: radial-gradient(circle at center, rgba(255,255,255,0.005) 0, rgba(255,
+  255,255,0.005) 1px, transparent 1px),
+  linear-gradient(to right, rgba(255,255,255,0.01) 1px, transparent 1px),
+  linear-gradient(to bottom, rgba( 255,255,255,0.01) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: #232323;
+}
+
+
+.primary-color {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-sky-800 to-sky-500  inline-block;
+}
+
+.primary-color-2 {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-sky-900  inline-block;
+}
+
+
+.content {
+  background-color: rgba(90, 86, 86, 0.3); /* Semi-transparent background to make text readable */
+
+}
+
+.glass{
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border:1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+}
+
+.bg-primary-color {
+  @apply bg-gradient-to-r from-blue-900 to-blue-700  inline-block;
+}
+
+span {
+  z-index: 20;
+}

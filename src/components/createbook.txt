@@ -1,0 +1,158 @@
+import React, { useState } from 'react';
+import Spinner from '../components/Spinner';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
+import { BsArrowLeft } from 'react-icons/bs';
+import { Link } from 'react-router-dom';
+
+const CreateBooks = () => {
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [publishYear, setPublishYear] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+  const [img, setImg] = useState(null);
+  const [imgPreview, setImgPreview] = useState(null);
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setImg(selectedFile);
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImgPreview(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      setImgPreview(null);
+    }
+  };
+
+  const uploadFile = async () => {
+    const data = new FormData();
+    data.append('file', img);
+    data.append('upload_preset', 'c0d1n0');
+
+    try {
+      let cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+      let resourceType = 'image';
+      let api = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
+
+      const res = await axios.post(api, data);
+      const { secure_url } = res.data;
+      console.log('Uploaded Image URL:', secure_url); // Enhanced console log for clarity
+      enqueueSnackbar('Image uploaded successfully', { variant: 'success' }); // Notify user of successful upload
+      return secure_url;
+    } catch (error) {
+      console.error('Upload Error:', error);
+      enqueueSnackbar('Failed to upload image', { variant: 'error' }); // Notify user of upload failure
+    }
+  };
+
+  const handleSaveBook = async () => {
+    try {
+      setLoading(true);
+      const uploadedImageUrl = await uploadFile();
+
+      const formData = {
+        title,
+        author,
+        publishYear,
+        image: uploadedImageUrl,
+      };
+      
+      await axios.post('http://localhost:5555/books', formData);
+
+      setLoading(false);
+      enqueueSnackbar('Book Created successfully', { variant: 'success' });
+      navigate('/Edit');
+    } catch (error) {
+      setLoading(false);
+      enqueueSnackbar('Error', { variant: 'error' });
+      console.log(error);
+    }
+  };
+
+  return (
+<div className="p-4">
+  {loading && <Spinner />}
+
+  <div className="flex flex-col rounded-xl max-w-lg mx-auto p-4">
+    <Link to="/Edit" className="flex items-center text-white bg-gray-600 py-1 px-4 rounded-md mb-4 w-max">
+      <BsArrowLeft className="text-2xl mr-2" />
+      Back to Edit
+    </Link>
+
+    <div className="my-4">
+      <label htmlFor="title" className="text-xl text-gray-500 mb-2">Title</label>
+      <input
+        id="title"
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="border border-gray-500 px-4 py-2 w-full rounded-md focus:outline-none focus:border-blue-500"
+      />
+    </div>
+
+    <div className="my-4">
+      <label htmlFor="author" className="text-xl text-gray-500 mb-2">Author</label>
+      <input
+        id="author"
+        type="text"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+        className="border border-gray-500 px-4 py-2 w-full rounded-md focus:outline-none focus:border-blue-500"
+      />
+    </div>
+
+    <div className="my-4">
+      <label htmlFor="publishYear" className="text-xl text-gray-500 mb-2">Publish Year</label>
+      <input
+        id="publishYear"
+        type="number"
+        value={publishYear}
+        onChange={(e) => setPublishYear(e.target.value)}
+        className="border border-gray-500 px-4 py-2 w-full rounded-md focus:outline-none focus:border-blue-500"
+      />
+    </div>
+
+    <div className="my-4">
+      <label htmlFor="img" className="text-xl text-gray-500 mb-2">Upload Image</label>
+      <input
+        id="img"
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="border border-gray-500 px-4 py-2 w-full rounded-md focus:outline-none focus:border-blue-500"
+      />
+    </div>
+
+    {imgPreview && (
+      <div className="my-4">
+        <img src={imgPreview} alt="Preview" className="max-w-full h-auto" />
+      </div>
+    )}
+
+<button
+      className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md mt-4 focus:outline-none"
+      onClick={uploadFile} // Only upload the image
+    >
+      Upload Image
+    </button>
+
+
+    <button
+      className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mt-8 focus:outline-none"
+      onClick={handleSaveBook}
+    >
+      Save
+    </button>
+  </div>
+</div>
+
+  );
+};
+
+export default CreateBooks;
